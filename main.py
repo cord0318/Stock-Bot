@@ -9,11 +9,16 @@ from urllib.request import Request, urlopen
 import FinanceDataReader as fdr
 import re
 
-
 app = commands.Bot(command_prefix="!") # command_prefix에 자신이 원하는 접두사를 적어주세요 ex)!주식
-token = str("") # 봇의 토큰을 적어주세요.
+token = "" # 봇의 토큰을 적어주세요.
 app.remove_command("help")
-game = str() # 자신이 원하는 상태 메시지를 적어주세요.
+game = "" # 자신이 원하는 상태 메시지를 적어주세요.
+
+def stock_code(stock_name): # 주식 이름을 주면 주식 코드를 주는 함수
+    df_krx = fdr.StockListing('KRX')
+    name = df_krx[df_krx['Name']==stock_name]
+    symbol = name.iloc[0, 0]
+    return symbol
 
 @app.event()
 async def on_ready():
@@ -22,22 +27,12 @@ async def on_ready():
     print(app.user.id)
     print(app.user)
     print("Made By Jung Ji-Hyo (cord)")
-    await app.change_presence(status = discord.Status.online, activity = discord.Game(game))
+    await app.change_presence(status=discord.Status.online, activity=discord.Game(game))
     print("==================")
 
-
-def stock_code(stock_name): # 주식 이름을 주면 주식 코드를 주는 함수
-    df_krx = fdr.StockListing('KRX')
-    name = df_krx[df_krx['Name']==stock_name]
-    symbol = name.iloc[0, 0]
-    return symbol
-
-
-
-
 @app.command() # 주식 디스코드 봇 작동
-async def 주식(ctx, stock_name = None):
-    if stock_name != None:
+async def 주식(ctx, stock_name=None):
+    if stock_name is not None:
         try:
             code = stock_code(stock_name)
             embed = discord.Embed(colour=discord.Colour.red())
@@ -77,7 +72,6 @@ async def 주식(ctx, stock_name = None):
             amount = amount.replace('\n', '')
             amount = amount.replace('\t', '')
 
-
             embed = discord.Embed(colour=discord.Colour.green())
             embed.set_author(name=f"{stock_name} ({code})", url=f'https://finance.naver.com/item/sise.nhn?code={code}')
             embed.add_field(name="현재가", value=price)
@@ -89,8 +83,9 @@ async def 주식(ctx, stock_name = None):
             embed.set_image(url=f"https://ssl.pstatic.net/imgfinance/chart/item/area/day/{code}.png")
             await msg.edit(embed=embed)
 
-
         except Exception as e:
             embed = discord.Embed(colour=discord.Colour.red())
             embed.add_field(name="Error", value=e)
             await ctx.send(embed=embed)
+
+app.run(token)
