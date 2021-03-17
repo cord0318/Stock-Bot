@@ -13,7 +13,7 @@ import re
 app = commands.Bot(command_prefix="!") # command_prefix에 자신이 원하는 접두사를 적어주세요 ex)!주식
 token = str("") # 봇의 토큰을 적어주세요.
 app.remove_command("help")
-game = str() # 자신이 원하는 상태 메시지를 적어주세요.
+game = "!주식" # 자신이 원하는 상태 메시지를 적어주세요.
 
 @app.event()
 async def on_ready():
